@@ -14,9 +14,12 @@ const renderTemplate = (path: string, context: any,
     });
 };//buscar a {{y}} e inserta el valor de datos de objeto 
 const parseTemplate = (template: string, context: any) => {
+    const ctx = Object.keys(context)
+        .map((k) => `const ${k} = context.${k}`)
+        .join(";");
     const expr = /{{(.*)}}/gm;
     return template.toString().replaceAll(expr, (match, group) => {
-        return context[group.trim()] ?? "(no data)"
+        return eval(`${ctx};${group}`);
     });
 }
 //registra el motor de la plantilla con express

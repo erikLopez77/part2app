@@ -16,7 +16,7 @@ expressApp.set("views", "templates/server");
 //express busca  archivos de plantilla en esa carpeta
 expressApp.use(helmet());
 expressApp.use(express.json());
-//hace coincidir sol.por medio de plantillas
+//hace coincidir soli. por medio de plantillas
 //get creauna ruta
 expressApp.get("/dynamic/:file", (req, resp) => {
     //representa una plantilla
@@ -29,4 +29,4 @@ expressApp.use(express.static("node_modules/bootstrap/dist"));
 expressApp.use((req, resp) => proxy.web(req, resp));
 const server = createServer(expressApp);
 server.on('upgrade', (req, socket, head) => proxy.ws(req, socket, head));
-server.listen(port, () => console.log(`HTTP Server listening on port ${port}`));
+server.listen(port, () => console.log(`HTTP Server listening on http://localhost:${port}`));
