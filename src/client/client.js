@@ -1,4 +1,5 @@
-import { Counter } from "./counter_custom";
+//import { Counter } from "./counter_custom";
+import * as Counter from "@templates/counter_client.handlebars";
 const context = {
     counter: 0
 }
