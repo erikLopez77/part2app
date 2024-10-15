@@ -2,16 +2,17 @@ import express, { Express } from "express";
 import { testHandler } from "./testHandler";
 import httpProxy from "http-proxy";
 import helmet from "helmet";
-//import { registerCustomTemplateEngine } from "./custom_engine";
 import { engine } from "express-handlebars";
 import * as helpers from "./template_helpers";
 import { createServer } from "http";
+//import { registerFormMiddleware, registerFormRoutes } from "./forms";
 
 const port = 5000;
 const expressApp: Express = express();
 const proxy = httpProxy.createProxyServer({
     target: "http://localhost:5100", ws: true
 });
+expressApp.set("views", "templates/server");
 //se configura el motor de plantillas
 //registerCustomTemplateEngine(expressApp);
 expressApp.engine("handlebars", engine());

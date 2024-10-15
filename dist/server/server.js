@@ -30,15 +30,16 @@ const express_1 = __importDefault(require("express"));
 const testHandler_1 = require("./testHandler");
 const http_proxy_1 = __importDefault(require("http-proxy"));
 const helmet_1 = __importDefault(require("helmet"));
-//import { registerCustomTemplateEngine } from "./custom_engine";
 const express_handlebars_1 = require("express-handlebars");
 const helpers = __importStar(require("./template_helpers"));
 const http_1 = require("http");
+//import { registerFormMiddleware, registerFormRoutes } from "./forms";
 const port = 5000;
 const expressApp = (0, express_1.default)();
 const proxy = http_proxy_1.default.createProxyServer({
     target: "http://localhost:5100", ws: true
 });
+expressApp.set("views", "templates/server");
 //se configura el motor de plantillas
 //registerCustomTemplateEngine(expressApp);
 expressApp.engine("handlebars", (0, express_handlebars_1.engine)());
