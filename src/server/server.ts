@@ -1,9 +1,11 @@
-import { createServer } from "http";
 import express, { Express } from "express";
 import { testHandler } from "./testHandler";
 import httpProxy from "http-proxy";
 import helmet from "helmet";
-import { registerCustomTemplateEngine } from "./custom_engine";
+//import { registerCustomTemplateEngine } from "./custom_engine";
+import { engine } from "express-handlebars";
+import * as helpers from "./template_helpers";
+import { createServer } from "http";
 
 const port = 5000;
 const expressApp: Express = express();
@@ -11,16 +13,20 @@ const proxy = httpProxy.createProxyServer({
     target: "http://localhost:5100", ws: true
 });
 //se configura el motor de plantillas
-registerCustomTemplateEngine(expressApp);
-expressApp.set("views", "templates/server");
+//registerCustomTemplateEngine(expressApp);
+expressApp.engine("handlebars", engine());
+expressApp.set("view engine", "handlebars");
 //express busca  archivos de plantilla en esa carpeta
 expressApp.use(helmet());
 expressApp.use(express.json());
 //hace coincidir soli. por medio de plantillas
 //get creauna ruta
 expressApp.get("/dynamic/:file", (req, resp) => {
-    //representa una plantilla
-    resp.render(`${req.params.file}.custom`, { message: "Hello template" });
+    resp.render(`${req.params.file}.handlebars`,
+        {
+            message: "Hello template", req,
+            helpers: { ...helpers }
+        });
 });
 
 expressApp.post("/test", testHandler);
