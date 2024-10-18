@@ -1,11 +1,12 @@
+import { createServer } from "http";
 import express, { Express } from "express";
 import { testHandler } from "./testHandler";
 import httpProxy from "http-proxy";
 import helmet from "helmet";
 import { engine } from "express-handlebars";
 import * as helpers from "./template_helpers";
-import { createServer } from "http";
-//import { registerFormMiddleware, registerFormRoutes } from "./forms";
+import { registerFormMiddleware, registerFormRoutes } from "./forms";
+
 
 const port = 5000;
 const expressApp: Express = express();
@@ -20,6 +21,8 @@ expressApp.set("view engine", "handlebars");
 //express busca  archivos de plantilla en esa carpeta
 expressApp.use(helmet());
 expressApp.use(express.json());
+registerFormMiddleware(expressApp);
+registerFormRoutes(expressApp);
 //hace coincidir soli. por medio de plantillas
 //get creauna ruta
 expressApp.get("/dynamic/:file", (req, resp) => {

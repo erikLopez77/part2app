@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <form>
+    <form action="/form">
         <div class="m-2">
             <label class="form-label">Name</label>
             <input name="name" class="form-control" />
@@ -15,6 +15,14 @@
         <div class="m-2">
             <label class="form-label">City</label>
             <input name="city" class="form-control" />
+        </div>
+        <div class="m-2">
+            <button class="btn btn-primary" formmethod="get">
+                Submit (GET)
+            </button>
+            <button class="btn btn-primary" formmethod="post">
+                Submit (POST)
+            </button>
         </div>
     </form>
 </body>

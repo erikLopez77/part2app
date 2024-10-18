@@ -26,14 +26,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = require("http");
 const express_1 = __importDefault(require("express"));
 const testHandler_1 = require("./testHandler");
 const http_proxy_1 = __importDefault(require("http-proxy"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_handlebars_1 = require("express-handlebars");
 const helpers = __importStar(require("./template_helpers"));
-const http_1 = require("http");
-//import { registerFormMiddleware, registerFormRoutes } from "./forms";
+const forms_1 = require("./forms");
 const port = 5000;
 const expressApp = (0, express_1.default)();
 const proxy = http_proxy_1.default.createProxyServer({
@@ -47,6 +47,8 @@ expressApp.set("view engine", "handlebars");
 //express busca  archivos de plantilla en esa carpeta
 expressApp.use((0, helmet_1.default)());
 expressApp.use(express_1.default.json());
+(0, forms_1.registerFormMiddleware)(expressApp);
+(0, forms_1.registerFormRoutes)(expressApp);
 //hace coincidir soli. por medio de plantillas
 //get creauna ruta
 expressApp.get("/dynamic/:file", (req, resp) => {
