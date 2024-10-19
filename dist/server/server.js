@@ -40,8 +40,6 @@ const proxy = http_proxy_1.default.createProxyServer({
     target: "http://localhost:5100", ws: true
 });
 expressApp.set("views", "templates/server");
-//se configura el motor de plantillas
-//registerCustomTemplateEngine(expressApp);
 expressApp.engine("handlebars", (0, express_handlebars_1.engine)());
 expressApp.set("view engine", "handlebars");
 //express busca  archivos de plantilla en esa carpeta
