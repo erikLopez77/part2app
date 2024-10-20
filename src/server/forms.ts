@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import multer from "multer";
+import { sanitizeValue } from "./sanitize";
 
 const fileMiddleware = multer({ storage: multer.memoryStorage() });
 export const registerFormMiddleware = (app: Express) => {
@@ -15,15 +16,14 @@ export const registerFormRoutes = (app: Express) => {
     });
 
     app.post("/form", fileMiddleware.single("datafile"), (req, resp) => {
-        resp.write(`Content-Type: ${req.headers["content-type"]}\n`)
+        resp.setHeader("Content-Type", "text/html")
         for (const key in req.body) {
-            resp.write(`${key}:${req.body[key]}\n`);
+            resp.write(`<div>${key}:${sanitizeValue(req.body[key])}</div>`);
         }
         if (req.file) {
-            resp.write(`---\nFile:${req.file.originalname}\n`);
-            resp.write(req.file.buffer.toString());
+            resp.write(`<div>File:${req.file.originalname}</div>`);
+            resp.write(`<div>${sanitizeValue(req.file.buffer.toString())}</div>`);
         }
         resp.end();
-
     });
 }

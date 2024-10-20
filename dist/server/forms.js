@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
+const sanitize_1 = require("./sanitize");
 const fileMiddleware = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 const registerFormMiddleware = (app) => {
     //extended se permiten datos mas complejos a ser procesados, se le da formato
@@ -20,13 +21,13 @@ const registerFormRoutes = (app) => {
         resp.end();
     });
     app.post("/form", fileMiddleware.single("datafile"), (req, resp) => {
-        resp.write(`Content-Type: ${req.headers["content-type"]}\n`);
+        resp.setHeader("Content-Type", "text/html");
         for (const key in req.body) {
-            resp.write(`${key}:${req.body[key]}\n`);
+            resp.write(`<div>${key}:${(0, sanitize_1.sanitizeValue)(req.body[key])}</div>`);
         }
         if (req.file) {
-            resp.write(`---\nFile:${req.file.originalname}\n`);
-            resp.write(req.file.buffer.toString());
+            resp.write(`<div>File:${req.file.originalname}</div>`);
+            resp.write(`<div>${(0, sanitize_1.sanitizeValue)(req.file.buffer.toString())}</div>`);
         }
         resp.end();
     });
