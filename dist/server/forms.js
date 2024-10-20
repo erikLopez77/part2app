@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
+const multer_1 = __importDefault(require("multer"));
+const fileMiddleware = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 const registerFormMiddleware = (app) => {
-    //extended se permiten datos mas complejos aser procesados
+    //extended se permiten datos mas complejos a ser procesados, se le da formato
     app.use(express_1.default.urlencoded({ extended: true }));
 };
 exports.registerFormMiddleware = registerFormMiddleware;
@@ -17,17 +19,16 @@ const registerFormRoutes = (app) => {
         }
         resp.end();
     });
-    app.post("/form", (req, resp) => {
+    app.post("/form", fileMiddleware.single("datafile"), (req, resp) => {
         resp.write(`Content-Type: ${req.headers["content-type"]}\n`);
-        if (req.headers["content-type"]?.startsWith("multipart/form-data")) {
-            req.pipe(resp);
+        for (const key in req.body) {
+            resp.write(`${key}:${req.body[key]}\n`);
         }
-        else {
-            for (const key in req.body) {
-                resp.write(`${key}:${req.body[key]}\n`);
-            }
-            resp.end();
+        if (req.file) {
+            resp.write(`---\nFile:${req.file.originalname}\n`);
+            resp.write(req.file.buffer.toString());
         }
+        resp.end();
     });
 };
 exports.registerFormRoutes = registerFormRoutes;

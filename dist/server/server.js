@@ -39,10 +39,12 @@ const expressApp = (0, express_1.default)();
 const proxy = http_proxy_1.default.createProxyServer({
     target: "http://localhost:5100", ws: true
 });
-expressApp.set("views", "templates/server");
-expressApp.engine("handlebars", (0, express_handlebars_1.engine)());
-expressApp.set("view engine", "handlebars");
 //express busca  archivos de plantilla en esa carpeta
+expressApp.set("views", "templates/server");
+//establece a Handlebars como motor de plantillas
+expressApp.engine("handlebars", (0, express_handlebars_1.engine)());
+//se usa el motor de plantillas "handlebars"
+expressApp.set("view engine", "handlebars");
 expressApp.use((0, helmet_1.default)());
 expressApp.use(express_1.default.json());
 (0, forms_1.registerFormMiddleware)(expressApp);
@@ -50,15 +52,18 @@ expressApp.use(express_1.default.json());
 //hace coincidir soli. por medio de plantillas
 //get creauna ruta
 expressApp.get("/dynamic/:file", (req, resp) => {
+    //se renderiza una vista, y se le pasa message,req y helpers
     resp.render(`${req.params.file}.handlebars`, {
         message: "Hello template", req,
-        helpers: { ...helpers }
+        helpers: { ...helpers } //toda funcion helpers, estaran disponibles en handlebars
     });
 });
 expressApp.post("/test", testHandler_1.testHandler);
 expressApp.use(express_1.default.static("static"));
 expressApp.use(express_1.default.static("node_modules/bootstrap/dist"));
+//use agrega middleware redirige req a la url de target, no Sockets
 expressApp.use((req, resp) => proxy.web(req, resp));
 const server = (0, http_1.createServer)(expressApp);
+//se activa una req de upgrade, redirecciona a webSockets
 server.on('upgrade', (req, socket, head) => proxy.ws(req, socket, head));
 server.listen(port, () => console.log(`HTTP Server listening on http://localhost:${port}`));
