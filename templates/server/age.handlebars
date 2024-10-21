@@ -1,0 +1,20 @@
+<div class="m-2">
+    {{#if nextage }}
+    <h4>Hello {{name}}. You will be {{nextage}} next year.</h4>
+    {{/if }}
+</div>
+<div>
+    <form action="/form" method="post">
+        <div class="m-2">
+            <label class="form-label">Name</label>
+            <input name="name" class="form-control" value="{{name}}" />
+        </div>
+        <div class="m-2">
+            <label class="form-label">Current Age</label>
+            <input name="age" class="form-control" value="{{age}}" />
+        </div>
+        <div class="m-2">
+            <button class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
