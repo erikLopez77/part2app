@@ -26,7 +26,10 @@ export const registerFormRoutes = (app: Express) => {
             resp.render("age", context);
         });
 }
+//valid,propname,test- validation,age,isInteger
 const pass = (valid: any, propname: string, test: string) => {
+    //verifica si hay resultados de validacion para la edad
     let propResult = valid?.results?.[propname];
+    //si la edad es verdadera el dsiplay es none(invisible), sino block(visible)
     return `display:${!propResult || propResult[test] ? "none" : "block"}`;
 }
