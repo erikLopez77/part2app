@@ -1,10 +1,8 @@
 import { createServer } from "http";
 import express, { Express } from "express";
-import { testHandler } from "./testHandler";
 import httpProxy from "http-proxy";
 import helmet from "helmet";
 import { engine } from "express-handlebars";
-import * as helpers from "./template_helpers";
 import { registerFormMiddleware, registerFormRoutes } from "./forms";
 
 const port = 5000;
@@ -24,17 +22,7 @@ expressApp.use(express.json());
 registerFormMiddleware(expressApp);
 registerFormRoutes(expressApp);
 //hace coincidir soli. por medio de plantillas
-//get creauna ruta
-expressApp.get("/dynamic/:file", (req, resp) => {
-    //se renderiza una vista, y se le pasa message,req y helpers
-    resp.render(`${req.params.file}.handlebars`,
-        {
-            message: "Hello template", req,
-            helpers: { ...helpers } //toda funcion helpers, estaran disponibles en handlebars
-        });
-});
-
-expressApp.post("/test", testHandler);
+expressApp.use("^/$", (req, resp) => resp.redirect("/form"));
 expressApp.use(express.static("static"));
 expressApp.use(express.static("node_modules/bootstrap/dist"));
 //use agrega middleware redirige req a la url de target, no Sockets
