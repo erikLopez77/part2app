@@ -14,5 +14,13 @@
             <td colspan="4">No data available</td>
         </tr>
         {{/unless }}
+        {{#each history }}
+        <tr>
+            <td>{{ this.name }} </td>
+            <td>{{ this.age }} </td>
+            <td>{{ this.years }} </td>
+            <td>{{ this.nextage }} </td>
+        </tr>
+        {{/each }}
     </tbody>
 </table>
