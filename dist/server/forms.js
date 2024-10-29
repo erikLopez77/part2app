@@ -21,6 +21,7 @@ const registerFormRoutes = (app) => {
     app.post("/form", async (req, resp) => {
         const nextage = Number.parseInt(req.body.age)
             + Number.parseInt(req.body.years);
+        await data_1.default.saveResult({ ...req.body, nextage });
         const context = {
             ...req.body, nextage
             //los res se pasan a plantilla por
