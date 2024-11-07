@@ -7,7 +7,7 @@ export const setCookie = (resp: ServerResponse, name: string,
     val: string) => {
         const signedCookieVal = signCookie(val, cookieSecret);
          //name=val.<valor hash>
-    let cookieVal: any[] = [`${name}=${signedCookieVal}; Max-Age=300; SameSite=Strict }`];
+    let cookieVal: any[] = [`${name}=${signedCookieVal}; Max-Age=300; SameSite=Strict `];
     if (resp.hasHeader(setheaderName)) {
         cookieVal.push(resp.getHeader(setheaderName));
     }//cookies se envían por ese encabezado
