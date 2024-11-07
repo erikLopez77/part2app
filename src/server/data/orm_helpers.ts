@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from "sequelize";
 import { Calculation, Person, ResultModel } from "./orm_models";
 import { Result } from "./repository";
-const primaryKey = {
+const primaryKey = {//objeto reutilizable
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -9,6 +9,7 @@ const primaryKey = {
     }
 };
 //...funciones omitidas por brevedad...
+//se convierte resultModel a Result
 export const fromOrmModel = (model: ResultModel | null): Result => {
     return {
         id: model?.id || 0,
@@ -19,8 +20,9 @@ export const fromOrmModel = (model: ResultModel | null): Result => {
     }
 }
 export const initializeModels = (sequelize: Sequelize) => {
+    //se defineen modelos por init 
     Person.init({
-        ...primaryKey,
+        ...primaryKey,//incluye las propiedades de pk ya definidas
         name: { type: DataTypes.STRING }
     }, { sequelize });
     Calculation.init({
@@ -31,14 +33,16 @@ export const initializeModels = (sequelize: Sequelize) => {
     }, { sequelize });
     ResultModel.init({
         ...primaryKey,
-    }, { sequelize });
+    }, { sequelize });//conecta el modelo a la base de datos
 }
 export const defineRelationships = () => {
+    //resultModel está relacionado con person y calculation por medio de esas fk
     ResultModel.belongsTo(Person, { foreignKey: "personId" });
     ResultModel.belongsTo(Calculation, { foreignKey: "calculationId" });
 }
 export const addSeedData = async (sequelize: Sequelize) => {
     //Sequelize.query acepta una cadena que contiene una declaración SQL.
+    //inserción de datos prueba
     await sequelize.query(`
         INSERT INTO Calculations
         (id, age, years, nextage, createdAt, updatedAt) VALUES

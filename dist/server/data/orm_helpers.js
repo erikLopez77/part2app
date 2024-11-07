@@ -11,6 +11,7 @@ const primaryKey = {
     }
 };
 //...funciones omitidas por brevedad...
+//se convierte resultModel a Result
 const fromOrmModel = (model) => {
     return {
         id: model?.id || 0,
@@ -22,6 +23,7 @@ const fromOrmModel = (model) => {
 };
 exports.fromOrmModel = fromOrmModel;
 const initializeModels = (sequelize) => {
+    //se defineen modelos por init 
     orm_models_1.Person.init({
         ...primaryKey,
         name: { type: sequelize_1.DataTypes.STRING }
@@ -34,16 +36,18 @@ const initializeModels = (sequelize) => {
     }, { sequelize });
     orm_models_1.ResultModel.init({
         ...primaryKey,
-    }, { sequelize });
+    }, { sequelize }); //conecta el modelo a la base de datos
 };
 exports.initializeModels = initializeModels;
 const defineRelationships = () => {
+    //resultModel está relacionado con person y calculation por medio de esas fk
     orm_models_1.ResultModel.belongsTo(orm_models_1.Person, { foreignKey: "personId" });
     orm_models_1.ResultModel.belongsTo(orm_models_1.Calculation, { foreignKey: "calculationId" });
 };
 exports.defineRelationships = defineRelationships;
 const addSeedData = async (sequelize) => {
     //Sequelize.query acepta una cadena que contiene una declaración SQL.
+    //inserción de datos prueba
     await sequelize.query(`
         INSERT INTO Calculations
         (id, age, years, nextage, createdAt, updatedAt) VALUES
