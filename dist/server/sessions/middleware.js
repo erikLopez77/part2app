@@ -1,14 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.customSessionMiddleware = void 0;
-const memory_repository_1 = require("./memory_repository");
+//import { MemoryRepository } from "./memory_repository";
 const cookies_1 = require("../cookies");
+const orm_repository_1 = require("./orm_repository");
 const session_cookie_name = "custom_session";
 const expiry_seconds = 300;
 const getExpiryDate = () => new Date(Date.now() + (expiry_seconds * 1000));
 const customSessionMiddleware = () => {
     //repo almacena sesiones en memoria
-    const repo = new memory_repository_1.MemoryRepository();
+    const repo = new orm_repository_1.OrmRepository();
     return async (req, resp, next) => {
         const id = (0, cookies_1.getCookie)(req, session_cookie_name);
         //se inicia nueva sesion sino hay cookie o no se encuentra session con ID
