@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
-import { Repository, Result } from "./repository";
+import { ApiRepository, Result } from "./repository";
 import { addSeedData, defineRelationships, fromOrmModel, initializeModels } from
     "./orm_helpers";
 import { Calculation, Person, ResultModel } from "./orm_models";
-export class OrmRepository implements Repository {//crud
+export class OrmRepository implements ApiRepository {//crud
     sequelize: Sequelize;
     constructor() {
         this.sequelize = new Sequelize({
@@ -31,14 +31,18 @@ export class OrmRepository implements Repository {//crud
                 where: { name: r.name },
                 transaction: tx
             });//verifica si caluclation existe basado en el age, years,nextage sino lo crea 
-            const result = await ResultModel.create(
+            const [calculation] = await Calculation.findOrCreate({
+                where: {
+                    age: r.age, years: r.years, nextage: r.nextage
+                },
+                    transaction: tx
+                });
+            return (await ResultModel.create(
                 {
                     personId: person.id,
+                    calculationId: calculation.id
                 },
-                { transaction: tx }
-            );
-
-            return result.id;
+                { transaction: tx })).id;
         });
     }//se consultan bd, incluyen modelos Person y Calculation
     async getAllResults(limit: number): Promise<Result[]> {
@@ -62,4 +66,15 @@ export class OrmRepository implements Repository {//crud
             limit, order: [["id", "DESC"]]
         })).map(row => fromOrmModel(row));
     }
+    async getResultById(id: number): Promise<Result | undefined> {
+        const model = await ResultModel.findByPk(id, {
+            include: [Person, Calculation ]
+        });
+        return model ? fromOrmModel(model): undefined;
+    }
+    async delete(id: number): Promise<boolean> {
+        const count = await ResultModel.destroy({ where: { id }});
+        return count == 1;
+    }
+
 }

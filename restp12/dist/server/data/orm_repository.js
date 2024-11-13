@@ -32,10 +32,16 @@ class OrmRepository {
                 where: { name: r.name },
                 transaction: tx
             }); //verifica si caluclation existe basado en el age, years,nextage sino lo crea 
-            const result = await orm_models_1.ResultModel.create({
+            const [calculation] = await orm_models_1.Calculation.findOrCreate({
+                where: {
+                    age: r.age, years: r.years, nextage: r.nextage
+                },
+                transaction: tx
+            });
+            return (await orm_models_1.ResultModel.create({
                 personId: person.id,
-            }, { transaction: tx });
-            return result.id;
+                calculationId: calculation.id
+            }, { transaction: tx })).id;
         });
     } //se consultan bd, incluyen modelos Person y Calculation
     async getAllResults(limit) {
@@ -58,6 +64,16 @@ class OrmRepository {
             },
             limit, order: [["id", "DESC"]]
         })).map(row => (0, orm_helpers_1.fromOrmModel)(row));
+    }
+    async getResultById(id) {
+        const model = await orm_models_1.ResultModel.findByPk(id, {
+            include: [orm_models_1.Person, orm_models_1.Calculation]
+        });
+        return model ? (0, orm_helpers_1.fromOrmModel)(model) : undefined;
+    }
+    async delete(id) {
+        const count = await orm_models_1.ResultModel.destroy({ where: { id } });
+        return count == 1;
     }
 }
 exports.OrmRepository = OrmRepository;
