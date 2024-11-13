@@ -30,5 +30,15 @@ class ResultWebService {
         const { name, age, years, nextage } = data;
         return data_1.default.update({ id, name, age, years, nextage });
     }
+    async modify(id, data) {
+        const dbData = await this.getOne(id);
+        //verifica si los datos recibidos de la solicitud contienen un valor de reemplazo.
+        if (dbData !== undefined) {
+            Object.entries(dbData).forEach(([prop, val]) => {
+                dbData[prop] = data[prop] ?? val;
+            });
+            return await this.replace(id, dbData);
+        }
+    }
 }
 exports.ResultWebService = ResultWebService;

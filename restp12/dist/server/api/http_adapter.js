@@ -56,6 +56,15 @@ function createAdapter(app, ws, baseUrl) {
             writeErrorResponse(err, resp);
         }
     });
+    app.patch(`${baseUrl}/:id`, async (req, resp) => {
+        try {
+            resp.json(await ws.modify(req.params.id, req.body));
+            resp.end();
+        }
+        catch (err) {
+            writeErrorResponse(err, resp);
+        }
+    });
     const writeErrorResponse = (err, resp) => {
         console.error(err);
         resp.writeHead(500);

@@ -35,6 +35,18 @@ export const ops = {
         };
         await sendRequest("PUT", `/api/results/${id}`, values);
         },
+    "Modify": async () => {
+        const id = await input({ message: "ID?"});
+        const values = {
+            name: await input({message: "Name?"}),
+            age: await input({message: "Age?"}),
+            years: await input({message: "Years?"}),
+            nextage: await input({message: "Next Age?"})
+        };
+        await sendRequest("PATCH", `/api/results/${id}`,
+            Object.fromEntries(Object.entries(values)
+                .filter(([p, v]) => v !== "")));
+    },
     "Exit": () => process.exit()
 }
 const sendRequest = async (method, url, body, contentType) => {

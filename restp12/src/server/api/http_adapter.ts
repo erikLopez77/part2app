@@ -5,6 +5,7 @@ export interface WebService<T> {
     store(data: any) : Promise<T | undefined>;
     delete(id: any): Promise<boolean>;
     replace(id: any, data: any): Promise<T | undefined>;
+    modify(id: any, data: any): Promise<T | undefined>;
 }
 //crea rutas Express que dependen de los métodos
 //WebService<T> para producir resultados.
@@ -42,6 +43,12 @@ export function createAdapter<T>(app: Express, ws: WebService<T>, baseUrl: strin
     app.put(`${baseUrl}/:id`, async (req, resp) => {
         try {
             resp.json(await ws.replace(req.params.id, req.body));
+            resp.end();
+        } catch (err) { writeErrorResponse(err, resp) }
+    });
+    app.patch(`${baseUrl}/:id`, async (req, resp) => {
+        try {
+            resp.json(await ws.modify(req.params.id, req.body));
             resp.end();
         } catch (err) { writeErrorResponse(err, resp) }
     });
