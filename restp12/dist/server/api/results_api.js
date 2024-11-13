@@ -1,10 +1,34 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResultWebService = void 0;
 const data_1 = __importDefault(require("../data"));
+const jsonpatch = __importStar(require("fast-json-patch"));
 class ResultWebService {
     getOne(id) {
         return data_1.default.getResultById(Number.parseInt(id));
@@ -34,10 +58,9 @@ class ResultWebService {
         const dbData = await this.getOne(id);
         //verifica si los datos recibidos de la solicitud contienen un valor de reemplazo.
         if (dbData !== undefined) {
-            Object.entries(dbData).forEach(([prop, val]) => {
-                dbData[prop] = data[prop] ?? val;
-            });
-            return await this.replace(id, dbData);
+            //trate los datos que recibe
+            //como un documento JSON Patch y los aplique mediante el paquete fast-json-patch.
+            return await this.replace(id, jsonpatch.applyPatch(dbData, data).newDocument);
         }
     }
 }

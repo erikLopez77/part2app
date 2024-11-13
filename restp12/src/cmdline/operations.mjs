@@ -44,8 +44,9 @@ export const ops = {
             nextage: await input({message: "Next Age?"})
         };
         await sendRequest("PATCH", `/api/results/${id}`,
-            Object.fromEntries(Object.entries(values)
-                .filter(([p, v]) => v !== "")));
+            Object.entries(values).filter(([p, v]) => v !== "")
+                .map(([p, v]) => ({ op: "replace", path: "/" + p, value: v})),
+                "application/json-patch+json");
     },
     "Exit": () => process.exit()
 }

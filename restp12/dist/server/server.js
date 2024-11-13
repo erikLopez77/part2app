@@ -23,7 +23,7 @@ expressApp.engine("handlebars", (0, express_handlebars_1.engine)());
 expressApp.set("view engine", "handlebars");
 //hace coincidir soli. por medio de plantillas
 expressApp.use((0, helmet_1.default)());
-expressApp.use(express_1.default.json());
+expressApp.use(express_1.default.json({ type: ["application/json", "application/json-patch+json"] }));
 (0, forms_1.registerFormMiddleware)(expressApp);
 (0, forms_1.registerFormRoutes)(expressApp);
 (0, api_1.createApi)(expressApp);

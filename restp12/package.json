@@ -6,7 +6,7 @@
     "server": "tsc-watch --noClear --onsuccess \"node dist/server/server.js\"",
     "client": "webpack serve",
     "start": "npm-run-all --parallel server client",
-    "cmdline": "node --watch ./src/cmdline/main.mjs" 
+    "cmdline": "node --watch ./src/cmdline/main.mjs"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.17.3",
+    "fast-json-patch": "^3.1.1",
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
     "http-proxy": "^1.18.1",
