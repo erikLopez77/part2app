@@ -24,13 +24,13 @@ export class OrmRepository implements ApiRepository {//crud
         await addSeedData(this.sequelize);//add initial data to DB
     }//escritura de archivos
     async saveResult(r: Result): Promise<number> {
-        //transaction agrupa operaciones 
+        //transaction agrupa operaciones
         return await this.sequelize.transaction(async (tx) => {
             const [person] = await Person.findOrCreate({//busca o crea una entrada
-                //verifica si person existe basado en el nombre, sino lo crea 
+                //verifica si person existe basado en el nombre, sino lo crea
                 where: { name: r.name },
                 transaction: tx
-            });//verifica si caluclation existe basado en el age, years,nextage sino lo crea 
+            });//verifica si caluclation existe basado en el age, years,nextage sino lo crea
             const [calculation] = await Calculation.findOrCreate({
                 where: {
                     age: r.age, years: r.years, nextage: r.nextage
@@ -76,5 +76,27 @@ export class OrmRepository implements ApiRepository {//crud
         const count = await ResultModel.destroy({ where: { id }});
         return count == 1;
     }
-
+    async update(r: Result) : Promise<Result | undefined > {
+        const mod = await this.sequelize.transaction(async (transaction) => {
+        //es leer los datos que se van a actualizar
+            const stored = await ResultModel.findByPk(r.id);
+        if (stored !== null) {
+            //si hay coindidencias se localizan os datos de person
+            const [person] = await Person.findOrCreate({
+                where: { name : r.name}, transaction
+            });//coincide con result
+            const [calculation] = await Calculation.findOrCreate({
+                where: {
+                    age: r.age, years: r.years, nextage: r.nextage
+                }, transaction
+            });
+            //actualizar ID para hacer referencia a los datos actuales
+            stored.personId = person.id;
+            stored.calculationId = calculation.id;
+            //save detecta cambios y los actualiza
+            return await stored.save({transaction});
+        }
+        });
+        return mod ? this.getResultById(mod.id) : undefined;
+    }
 }
