@@ -15,9 +15,10 @@ export class ResultWebService implements WebService<Result> {
         }
     }
     async store(data: any): Promise<Result | undefined> {
-        const { name, age, years} = data;
-        const nextage = Number.parseInt(age) + Number.parseInt(years);
-        const id = await repository.saveResult({ id: 0, name, age, years, nextage});
+        const { name, age, years } = data;
+        // const nextage = Number.parseInt(age) + Number.parseInt(years);
+        const nextage = age + years;
+        const id = await repository.saveResult({ id: 0, name, age, years, nextage });
         return await repository.getResultById(id);
     }
     delete(id: any): Promise<boolean> {

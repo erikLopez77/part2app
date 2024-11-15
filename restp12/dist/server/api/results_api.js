@@ -43,7 +43,8 @@ class ResultWebService {
     }
     async store(data) {
         const { name, age, years } = data;
-        const nextage = Number.parseInt(age) + Number.parseInt(years);
+        // const nextage = Number.parseInt(age) + Number.parseInt(years);
+        const nextage = age + years;
         const id = await data_1.default.saveResult({ id: 0, name, age, years, nextage });
         return await data_1.default.getResultById(id);
     }

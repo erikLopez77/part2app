@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAdapter = void 0;
+const validation_types_1 = require("./validation_types");
 //crea rutas Express que dependen de los métodos
 //WebService<T> para producir resultados.
 function createAdapter(app, ws, baseUrl) {
@@ -67,7 +68,9 @@ function createAdapter(app, ws, baseUrl) {
     });
     const writeErrorResponse = (err, resp) => {
         console.error(err);
-        resp.writeHead(500);
+        //se lanzan excepciones como respuesta 400badRequest p/errores de validacion
+        //respuesta 500 internal server error p/ cualquier otro problema
+        resp.writeHead(err instanceof validation_types_1.ValidationError ? 400 : 500);
         resp.end();
     };
 }
