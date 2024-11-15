@@ -1,5 +1,5 @@
 import {
-    ValidationError, ValidationRequirements,
+    ModelValidation, ValidationError, ValidationRequirements,
     ValidationRule, WebServiceValidation
 } from "./validation_types";
 export type ValidationResult = [valid: boolean, value: any];
@@ -42,4 +42,17 @@ export function validateIdProperty<T>(val: any,
         throw new ValidationError("ID", "Validation Error");
     }
     return val;
+}
+export function validateModel(model: any, rules: ModelValidation): any {
+    //aplica las reglas para cada propiedad 
+    if (rules.propertyRules) {
+        model = validate(model, rules.propertyRules);
+    }//aplica la regla de todo el modelo.
+    if (rules.modelRule) {
+        const [valid, data] = applyRule(model, rules.modelRule);
+        if (valid) {
+            return data;
+        }
+        throw new ValidationError("Model", "Validation Error");
+    }
 }

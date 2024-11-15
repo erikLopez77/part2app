@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateIdProperty = exports.validate = void 0;
+exports.validateModel = exports.validateIdProperty = exports.validate = void 0;
 const validation_types_1 = require("./validation_types");
 //se le pasa un objeto de datos y obj. ValidationRequirements
 function validate(data, reqs) {
@@ -43,3 +43,17 @@ function validateIdProperty(val, v) {
     return val;
 }
 exports.validateIdProperty = validateIdProperty;
+function validateModel(model, rules) {
+    //aplica las reglas para cada propiedad 
+    if (rules.propertyRules) {
+        model = validate(model, rules.propertyRules);
+    } //aplica la regla de todo el modelo.
+    if (rules.modelRule) {
+        const [valid, data] = applyRule(model, rules.modelRule);
+        if (valid) {
+            return data;
+        }
+        throw new validation_types_1.ValidationError("Model", "Validation Error");
+    }
+}
+exports.validateModel = validateModel;

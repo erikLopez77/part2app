@@ -29,9 +29,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResultWebService = void 0;
 const data_1 = __importDefault(require("../data"));
 const jsonpatch = __importStar(require("fast-json-patch"));
+const validation_functions_1 = require("./validation_functions");
+const results_api_validation_1 = require("./results_api_validation");
 class ResultWebService {
     getOne(id) {
-        return data_1.default.getResultById(Number.parseInt(id));
+        return data_1.default.getResultById(id);
     }
     getMany(query) {
         if (query.name) {
@@ -53,7 +55,8 @@ class ResultWebService {
     }
     replace(id, data) {
         const { name, age, years, nextage } = data;
-        return data_1.default.update({ id, name, age, years, nextage });
+        const validated = (0, validation_functions_1.validateModel)({ name, age, years, nextage }, results_api_validation_1.ResultModelValidation);
+        return data_1.default.update({ id, ...validated });
     }
     async modify(id, data) {
         const dbData = await this.getOne(id);
