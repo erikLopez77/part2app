@@ -13,6 +13,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@feathersjs/express": "^5.0.14",
+    "@feathersjs/feathers": "^5.0.14",
     "@inquirer/prompts": "^3.3.0",
     "bootstrap": "^5.3.2",
     "connect-session-sequelize": "^7.1.7",
