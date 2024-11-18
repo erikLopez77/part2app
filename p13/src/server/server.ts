@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { engine } from "express-handlebars";
 import { registerFormMiddleware, registerFormRoutes } from "./forms";
 import { createApi } from "./api";
+import { createAuth } from "./auth";
 
 const port = 5000;
 const expressApp: Express = express();
@@ -20,9 +21,10 @@ expressApp.set("view engine", "handlebars");
 //hace coincidir soli. por medio de plantillas
 expressApp.use(helmet());
 expressApp.use(express.json(
-    {type: ["application/json", "application/json-patch+json"]}
+    { type: ["application/json", "application/json-patch+json"] }
 ));
 registerFormMiddleware(expressApp);
+createAuth(expressApp);
 registerFormRoutes(expressApp);
 
 createApi(expressApp);

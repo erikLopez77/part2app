@@ -10,6 +10,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const express_handlebars_1 = require("express-handlebars");
 const forms_1 = require("./forms");
 const api_1 = require("./api");
+const auth_1 = require("./auth");
 const port = 5000;
 const expressApp = (0, express_1.default)();
 const proxy = http_proxy_1.default.createProxyServer({
@@ -25,6 +26,7 @@ expressApp.set("view engine", "handlebars");
 expressApp.use((0, helmet_1.default)());
 expressApp.use(express_1.default.json({ type: ["application/json", "application/json-patch+json"] }));
 (0, forms_1.registerFormMiddleware)(expressApp);
+(0, auth_1.createAuth)(expressApp);
 (0, forms_1.registerFormRoutes)(expressApp);
 (0, api_1.createApi)(expressApp);
 expressApp.use("^/$", (req, resp) => resp.redirect("/form"));
