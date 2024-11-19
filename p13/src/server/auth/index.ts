@@ -1,6 +1,8 @@
 import { Express } from "express"
 import { AuthStore } from "./auth_types";
 import { OrmAuthStore } from "./orm_authstore";
+import jwt from "jsonwebtoken";
+const jwt_secret = "mytokensecret";
 const store: AuthStore = new OrmAuthStore();
 type User = { username: string }
 //propiedad de nombre
@@ -19,6 +21,18 @@ export const createAuth = (app: Express) => {
         if (username) {
             req.authenticated = true;
             req.user = { username };
+        } else if (req.headers.authorization) {
+            let token = req.headers.authorization;
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            try {
+                const decoded = jwt.verify(token, jwt_secret) as User;
+                req.authenticated = true;
+                req.user = { username: decoded.username };
+            } catch {
+                // do nothing - cannot verify token
+            }
         } else {
             req.authenticated = false;
         }//crean datos locales
@@ -47,7 +61,21 @@ export const createAuth = (app: Express) => {
             resp.redirect(
                 `/signin?username=${username}&password=${password}&failed=1`);
         }
-    });//usuario cierra la sesion y destruye dicho objeto
+    });//valida credenciales por el cliente 
+    app.post("/api/signin", async (req, resp) => {
+        const username = req.body.username;
+        const password = req.body.password;
+        const result: any = {
+            success: await store.validateCredentials(username, password)
+        }//si es valido se crea un token
+        if (result.success) {//usuario, la firma, objeto p/ expiracion
+            result.token = jwt.sign({ username }, jwt_secret,
+                { expiresIn: "1hr" });
+        }//se envían los resultados
+        resp.json(result);
+        resp.end();
+    });
+    //usuario cierra la sesion y destruye dicho objeto
     app.post("/signout", async (req, resp) => {
         req.session.destroy(() => {
             resp.redirect("/");
