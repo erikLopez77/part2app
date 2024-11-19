@@ -1,4 +1,4 @@
-import { Express } from "express"
+import { Express, NextFunction, RequestHandler } from "express";
 import { AuthStore } from "./auth_types";
 import { OrmAuthStore } from "./orm_authstore";
 import jwt from "jsonwebtoken";
@@ -81,5 +81,23 @@ export const createAuth = (app: Express) => {
             resp.redirect("/");
         })
     });
-
+    app.get("/unauthorized", async (req, resp) => {
+        resp.render("unauthorized");
+    });
+}//acepta rol y devuelve un componente middleware que pasará soli al controlador
+//si el usuario está asignado a ese rol (validateMembership)
+export const roleGuard = (role: string)
+    : RequestHandler<Request, Response, NextFunction> => {
+    return async (req, resp, next) => {
+        if (req.authenticated) {
+            const username = req.user.username;
+            if (await store.validateMembership(username, role)) {
+                next();
+                return;
+            }//p/ soli autenticadas
+            resp.redirect("/unauthorized");
+        } else {//en caso de no haber sido autenticado
+            resp.redirect("/signin");
+        }
+    }
 }

@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const data_1 = __importDefault(require("./data"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const session_helpers_1 = require("./sessions/session_helpers");
+const auth_1 = require("./auth");
 const rowLimit = 10;
 const registerFormMiddleware = (app) => {
     //extended se permiten datos mas complejos a ser procesados, se le da formato
@@ -25,13 +26,14 @@ const registerFormRoutes = (app) => {
             data: await data_1.default.getAllResults(rowLimit)
         });
     });
-    app.post("/form/delete/:id", async (req, resp) => {
+    //restringido a admins
+    app.post("/form/delete/:id", (0, auth_1.roleGuard)("Admins"), async (req, resp) => {
         const id = Number.parseInt(req.params["id"]);
         await data_1.default.delete(id);
         resp.redirect("/form");
         resp.end();
-    });
-    app.post("/form/add", async (req, resp) => {
+    }); //restringido a usuarios
+    app.post("/form/add", (0, auth_1.roleGuard)("Users"), async (req, resp) => {
         const nextage = Number.parseInt(req.body["age"])
             + Number.parseInt(req.body["years"]);
         await data_1.default.saveResult({ ...req.body, nextage });

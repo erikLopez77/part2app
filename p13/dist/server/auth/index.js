@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAuth = void 0;
+exports.roleGuard = exports.createAuth = void 0;
 const orm_authstore_1 = require("./orm_authstore");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const jwt_secret = "mytokensecret";
@@ -77,5 +77,25 @@ const createAuth = (app) => {
             resp.redirect("/");
         });
     });
-};
+    app.get("/unauthorized", async (req, resp) => {
+        resp.render("unauthorized");
+    });
+}; //acepta rol y devuelve un componente middleware que pasará soli al controlador
 exports.createAuth = createAuth;
+//si el usuario está asignado a ese rol (validateMembership)
+const roleGuard = (role) => {
+    return async (req, resp, next) => {
+        if (req.authenticated) {
+            const username = req.user.username;
+            if (await store.validateMembership(username, role)) {
+                next();
+                return;
+            } //p/ soli autenticadas
+            resp.redirect("/unauthorized");
+        }
+        else { //en caso de no haber sido autenticado
+            resp.redirect("/signin");
+        }
+    };
+};
+exports.roleGuard = roleGuard;

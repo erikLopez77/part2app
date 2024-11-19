@@ -1,7 +1,8 @@
 import express, { Express } from "express";
 import repository from "./data";
 import cookieMiddleware from "cookie-parser";
-import { getSession, sessionMiddleware } from "./sessions/session_helpers";
+import { sessionMiddleware } from "./sessions/session_helpers";
+import { roleGuard } from "./auth";
 import { Result } from "./data/repository";
 
 const rowLimit = 10;
@@ -21,17 +22,16 @@ export const registerFormRoutes = (app: Express) => {
             data: await repository.getAllResults(rowLimit)
         });
     });
-
-    app.post("/form/delete/:id", async (req, resp) => {
+    //restringido a admins
+    app.post("/form/delete/:id", roleGuard("Admins"), async (req, resp) => {
         const id = Number.parseInt(req.params["id"]);
         await repository.delete(id);
         resp.redirect("/form");
         resp.end();
-    });
-    app.post("/form/add", async (req, resp) => {
+    });//restringido a usuarios
+    app.post("/form/add", roleGuard("Users"), async (req, resp) => {
         const nextage = Number.parseInt(req.body["age"])
             + Number.parseInt(req.body["years"]);
-
         await repository.saveResult({ ...req.body, nextage } as Result);
         resp.redirect("/form");
         resp.end();

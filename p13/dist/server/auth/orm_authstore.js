@@ -21,6 +21,12 @@ class OrmAuthStore {
         await this.sequelize.sync();
         await this.storeOrUpdateUser("alice", "mysecret");
         await this.storeOrUpdateUser("bob", "mysecret");
+        await this.storeOrUpdateRole({
+            name: "Users", members: ["alice", "bob"]
+        });
+        await this.storeOrUpdateRole({
+            name: "Admins", members: ["alice"]
+        });
     }
     async getUser(name) {
         return await orm_auth_models_1.CredentialsModel.findByPk(name);
@@ -54,6 +60,46 @@ class OrmAuthStore {
                 resolve(hash);
             });
         });
+    }
+    async getRole(name) {
+        const stored = await orm_auth_models_1.RoleModel.findByPk(name, {
+            //datos asociados al modelo de credenciales, prop.del  modelo que se completarán en el resultado
+            include: [{ model: orm_auth_models_1.CredentialsModel, attributes: ["username"] }]
+        });
+        if (stored) {
+            return {
+                name: stored.name,
+                members: stored.CredentialsModels?.map(m => m.username) ?? []
+            };
+        }
+        return null;
+    }
+    async getRolesForUser(username) {
+        return (await orm_auth_models_1.RoleModel.findAll({
+            //acepta role y consulta bd p/ objetos coincidentes
+            include: [{
+                    model: orm_auth_models_1.CredentialsModel,
+                    where: { username }, //selección en función de los datos asociados
+                    attributes: [] //selección en función de los datos asociados
+                }]
+        })).map(rm => rm.name);
+    }
+    async storeOrUpdateRole(role) {
+        return await this.sequelize.transaction(async (transaction) => {
+            //en la bd se busca credentialsmodels coincidentes
+            const users = await orm_auth_models_1.CredentialsModel.findAll({
+                where: { username: { [sequelize_1.Op.in]: role.members } },
+                transaction
+            }); //se garantiza la membresía de rol
+            const [rm] = await orm_auth_models_1.RoleModel.findOrCreate({
+                where: { name: role.name }, transaction
+            }); //establece la membresía de rol
+            await rm.setCredentialsModels(users, { transaction });
+            return role;
+        });
+    } //obtiene roles de un usuario y verifica que coincidan con un rol requerido
+    async validateMembership(username, rolename) {
+        return (await this.getRolesForUser(username)).includes(rolename);
     }
 }
 exports.OrmAuthStore = OrmAuthStore;
