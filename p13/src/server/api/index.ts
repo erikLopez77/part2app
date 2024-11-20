@@ -8,6 +8,8 @@ import { FeathersWrapper } from "./feathers_adapters";
 import { feathers } from "@feathersjs/feathers";
 import feathersExpress, { rest } from "@feathersjs/express";
 import { ValidationError } from "./validation_types";
+import { roleHook } from "../auth";
+import passport from "passport";
 
 export const createApi = (app: Express) => {
     //createAdapter(app, new Validator(new ResultWebService(),
@@ -15,7 +17,17 @@ export const createApi = (app: Express) => {
     const feathersApp = feathersExpress(feathers(), app).configure(rest());
     const service = new Validator(new ResultWebService(),
         ResultWebServiceValidation);
-    feathersApp.use('/api/results', new FeathersWrapper(service));
+    feathersApp.use('/api/results',
+        //authenticate validará tokens usando estrategia jwt
+        passport.authenticate("jwt", { session: false }),
+        (req, resp, next) => {
+            req.feathers.user = req.user;
+            req.feathers.authenticated
+                = req.authenticated = req.user !== undefined;
+            next();
+        },
+        new FeathersWrapper(service));
+
     feathersApp.hooks({
         error: {
             all: [(ctx) => {
@@ -24,6 +36,12 @@ export const createApi = (app: Express) => {
                     ctx.error = undefined;
                 }
             }]
+        },
+        before: {
+            create: [roleHook("Users")],
+            remove: [roleHook("Admins")],
+            update: [roleHook("Admins")],
+            patch: [roleHook("Admins")]
         }
     });
 }

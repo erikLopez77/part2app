@@ -22,6 +22,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createApi = void 0;
 const results_api_1 = require("./results_api");
@@ -31,12 +34,21 @@ const feathers_adapters_1 = require("./feathers_adapters");
 const feathers_1 = require("@feathersjs/feathers");
 const express_1 = __importStar(require("@feathersjs/express"));
 const validation_types_1 = require("./validation_types");
+const auth_1 = require("../auth");
+const passport_1 = __importDefault(require("passport"));
 const createApi = (app) => {
     //createAdapter(app, new Validator(new ResultWebService(),
     // ResultWebServiceValidation), "/api/results");
     const feathersApp = (0, express_1.default)((0, feathers_1.feathers)(), app).configure((0, express_1.rest)());
     const service = new validation_adapters_1.Validator(new results_api_1.ResultWebService(), results_api_validation_1.ResultWebServiceValidation);
-    feathersApp.use('/api/results', new feathers_adapters_1.FeathersWrapper(service));
+    feathersApp.use('/api/results', 
+    //authenticate validará tokens usando estrategia jwt
+    passport_1.default.authenticate("jwt", { session: false }), (req, resp, next) => {
+        req.feathers.user = req.user;
+        req.feathers.authenticated
+            = req.authenticated = req.user !== undefined;
+        next();
+    }, new feathers_adapters_1.FeathersWrapper(service));
     feathersApp.hooks({
         error: {
             all: [(ctx) => {
@@ -45,6 +57,12 @@ const createApi = (app) => {
                         ctx.error = undefined;
                     }
                 }]
+        },
+        before: {
+            create: [(0, auth_1.roleHook)("Users")],
+            remove: [(0, auth_1.roleHook)("Admins")],
+            update: [(0, auth_1.roleHook)("Admins")],
+            patch: [(0, auth_1.roleHook)("Admins")]
         }
     });
 };
