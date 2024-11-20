@@ -4,12 +4,13 @@ import {
 } from "sequelize";
 import { Credentials, Role } from "./auth_types";
 export class CredentialsModel
+//inferatributes prop. del modelo una vez que se inicie
     extends Model<InferAttributes<CredentialsModel>,
         InferCreationAttributes<CredentialsModel>>
     implements Credentials {
     declare username: string;
     declare hashedPassword: Buffer;
-    declare salt: Buffer;
+    declare salt: Buffer;//array de  roleModel para tener relacion
     declare RoleModels?: InferAttributes<RoleModel>[];
 }
 //se representa un rol
@@ -17,8 +18,9 @@ export class RoleModel extends Model<InferAttributes<RoleModel>,
     //declare deine propiedades
     InferCreationAttributes<RoleModel>> {
     declare name: string;
+    //credentialsModel es un arreglo de tipo crede.Models para tener relación
     declare CredentialsModels?: InferAttributes<CredentialsModel>[];
-    declare setCredentialsModels://se confihura con un roleModel
+    declare setCredentialsModels://se configura con un roleModel
         HasManySetAssociationsMixin<CredentialsModel, string>;
 }
 export const initializeAuthModels = (sequelize: Sequelize) => {

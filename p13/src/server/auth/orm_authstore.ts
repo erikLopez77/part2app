@@ -9,8 +9,8 @@ export class OrmAuthStore implements AuthStore {
         this.sequelize = new Sequelize({
             dialect: "sqlite",
             storage: "orm_auth.db",//db
-            logging: console.log,
-            logQueryParameters: true
+            logging: console.log,//consultas en la consola
+            logQueryParameters: true//muestra parametros de consultas en los log
         });
         this.initModelAndDatabase();
     }
@@ -27,26 +27,26 @@ export class OrmAuthStore implements AuthStore {
             name: "Admins", members: ["alice"]
         });
     }
-    async getUser(name: string) {//recupera credenciales
+    async getUser(name: string) {//recupera credenciales buscando por su nombre
         return await CredentialsModel.findByPk(name);
     }
     async storeOrUpdateUser(username: string, password: string) {
-        const salt = randomBytes(16);
-        const hashedPassword = await this.createHashCode(password, salt);
+        const salt = randomBytes(16); //se genera salt
+        const hashedPassword = await this.createHashCode(password, salt);//se hashea password
         const [model] = await CredentialsModel.upsert({
-            username, hashedPassword, salt
+            username, hashedPassword, salt//inserta o actualiza usuario
         });
-        return model;
+        return model; //modelo creado o actualizado
     }
     async validateCredentials(username: string, password: string):
         Promise<boolean> {
-        const storedCreds = await this.getUser(username);
+        const storedCreds = await this.getUser(username);//busca a usuario
         if (storedCreds) {
-            const candidateHash =//calcula  nuevo codigo hash con contraseña candidata
+            const candidateHash =//calcula  nuevo codigo hash con contraseña candidata(escrita)
                 await this.createHashCode(password, storedCreds.salt);
             //compara hash de forma segura
             return timingSafeEqual(candidateHash, storedCreds.hashedPassword);
-        }
+        }//falso si no es valido
         return false;
     }//crea un codigo hash usando pbkdf
     private createHashCode(password: string, salt: Buffer): Promise<Buffer> {
@@ -56,7 +56,7 @@ export class OrmAuthStore implements AuthStore {
                 if (err) {
                     reject(err)
                 };
-                resolve(hash);
+                resolve(hash);//devuelve hash generado
             })
         })
     }
@@ -66,8 +66,9 @@ export class OrmAuthStore implements AuthStore {
             include: [{ model: CredentialsModel, attributes: ["username"] }]
         });
         if (stored) {
-            return {
+            return {//nombre del rol
                 name: stored.name,
+                //miembros de ese rol
                 members: stored.CredentialsModels?.map(m => m.username) ?? []
             }
         }
@@ -76,10 +77,10 @@ export class OrmAuthStore implements AuthStore {
     async getRolesForUser(username: string): Promise<string[]> {
         return (await RoleModel.findAll({
             //acepta role y consulta bd p/ objetos coincidentes
-            include: [{
+            include: [{//relación con role model
                 model: CredentialsModel,
-                where: { username },//selección en función de los datos asociados
-                attributes: []//selección en función de los datos asociados
+                where: { username },//selección en funciónn a username
+                attributes: []//no se recuperan las demas columnas
             }]
         })).map(rm => rm.name);
     }
